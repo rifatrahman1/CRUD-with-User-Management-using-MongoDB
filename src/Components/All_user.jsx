@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Users, ArrowLeft, UserPlus, Save, Search, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
-import { data, useLoaderData } from 'react-router-dom';
+import { useLoaderData } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 function All_user() {
@@ -13,13 +13,6 @@ function All_user() {
             // status: 'active'
       });
 
-      // Mock users data
-      const [users, setUsers] = useState([
-            { id: 1, name: 'Jaya Dakhale', email: 'jaya@gmail.com', gender: 'female', status: 'active' },
-            { id: 2, name: 'Alex Johnson', email: 'alex@example.com', gender: 'male', status: 'active' },
-            { id: 3, name: 'Sarah Williams', email: 'sarah@example.com', gender: 'female', status: 'inactive' }
-      ]);
-
       const handleInputChange = (e) => {
             const { name, value } = e.target;
             setFormData({
@@ -29,6 +22,47 @@ function All_user() {
             console.log("Form Data:", formData);
       };
 
+      const handle_delete = (id) => {
+            console.log('specific id', id);
+
+            Swal.fire({
+                  title: "Are you sure?",
+                  text: "Are you sure that you want to delete it?",
+                  icon: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#3085d6",
+                  cancelButtonColor: "#d33",
+                  confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                  if (result.isConfirmed) {
+                        fetch(`http://localhost:5000/users/${id}`, {  // ✅ এখানে `/` যোগ করা হয়েছে
+                              method: 'DELETE'
+                        })
+                              .then(res => res.json())
+                              .then((data) => {
+                                    console.log(data);
+                                    if (data.deletedCount > 0) {
+                                          Swal.fire({
+                                                title: "Deleted!",
+                                                text: "User has been deleted.",
+                                                icon: "success"
+                                          });
+
+                                          // ✅ `users_data` আসলে একটা অ্যারে কি না চেক করা হচ্ছে
+                                          if (Array.isArray(users_data)) {
+                                                const remaining = users_data.filter((user) => user._id !== id);
+                                                console.log('remaining', remaining);
+                                          } else {
+                                                console.log("users_data is not an array.");
+                                          }
+                                    }
+                              })
+                              .catch(error => console.error("Error deleting user:", error));
+                  }
+            });
+      };
+
+
       const handleSubmit = (event) => {
             event.preventDefault();
             const form = event.target;
@@ -37,36 +71,37 @@ function All_user() {
             const gender = form.gender.value;
             const status = form.status.value;
             const users = { name, email, gender, status };
-        
+
             console.log(users); // ডাটা ঠিকঠাক যাচ্ছে কিনা চেক করো
-        
+
             fetch("http://localhost:5000/users", {
-                method: "POST",
-                headers: {
-                    "content-type": "application/json",
-                },
-                body: JSON.stringify(users),
+                  method: "POST",
+                  headers: {
+                        "content-type": "application/json",
+                  },
+                  body: JSON.stringify(users),
             })
-                .then((res) => res.json())
-                .then((data) => {
-                    console.log("Server Response:", data); // সার্ভার কী রেসপন্স দিচ্ছে চেক করো
-        
-                    if (data.insertedId) {
-                        Swal.fire({
-                              title: "Good job!",
-                              text: "User added successfully!",
-                              icon: "success",
-                          }).then(() => {
-                              form.reset();
-                              form.elements["name"].value = "";
-                              form.elements["email"].value = "";
-                          });                                                   
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error:", error);
-                });
-        };        
+                  .then((res) => res.json())
+                  .then((data) => {
+                        console.log("Server Response:", data); // সার্ভার কী রেসপন্স দিচ্ছে চেক করো
+
+                        if (data.insertedId) {
+                              Swal.fire({
+                                    title: "Good job!",
+                                    text: "User added successfully!",
+                                    icon: "success",
+                              }).then(() => {
+                                    form.reset();
+                                    form.elements["name"].value = "";
+                                    form.elements["email"].value = "";
+                              });
+                        }
+                  })
+                  .catch((error) => {
+                        console.error("Error:", error);
+                  });
+            setActiveTab('all')
+      };
 
       return (
             <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 p-6">
@@ -75,7 +110,7 @@ function All_user() {
                         <div className="bg-emerald-500 text-white p-5">
                               <div className="flex items-center justify-center">
                                     <Users className="mr-2" size={24} />
-                                    <h1 className="text-2xl font-bold text-center">User Management System:{users_data.length}</h1>
+                                    <h1 className="text-2xl font-bold text-center">User Management System</h1>
                               </div>
                         </div>
 
@@ -83,9 +118,9 @@ function All_user() {
                         <div className="flex border-b border-gray-200">
                               <button
                                     onClick={() => setActiveTab('all')}
-                                    className={`flex items-center px-6 py-4 text-sm font-medium transition-colors duration-200 ${activeTab === 'all'
-                                                ? 'text-emerald-600 border-b-2 border-emerald-500'
-                                                : 'text-gray-600 hover:text-emerald-500'
+                                    className={`cursor-pointer flex items-center px-6 py-4 text-sm font-medium transition-colors duration-200 ${activeTab === 'all'
+                                          ? 'text-emerald-600 border-b-2 border-emerald-500'
+                                          : 'text-gray-600 hover:text-emerald-500'
                                           }`}
                               >
                                     <Users size={18} className="mr-2" />
@@ -93,9 +128,9 @@ function All_user() {
                               </button>
                               <button
                                     onClick={() => setActiveTab('new')}
-                                    className={`flex items-center px-6 py-4 text-sm font-medium transition-colors duration-200 ${activeTab === 'new'
-                                                ? 'text-emerald-600 border-b-2 border-emerald-500'
-                                                : 'text-gray-600 hover:text-emerald-500'
+                                    className={`cursor-pointer flex items-center px-6 py-4 text-sm font-medium transition-colors duration-200 ${activeTab === 'new'
+                                          ? 'text-emerald-600 border-b-2 border-emerald-500'
+                                          : 'text-gray-600 hover:text-emerald-500'
                                           }`}
                               >
                                     <UserPlus size={18} className="mr-2" />
@@ -108,7 +143,7 @@ function All_user() {
                               {activeTab === 'all' && (
                                     <div className="space-y-6">
                                           <div className="flex justify-between items-center">
-                                                <h2 className="text-xl font-semibold text-gray-800">User List</h2>
+                                                <h2 className="text-xl font-semibold text-gray-800">User List : {users_data.length}</h2>
                                                 <div className="relative">
                                                       <input
                                                             type="text"
@@ -131,8 +166,8 @@ function All_user() {
                                                             </tr>
                                                       </thead>
                                                       <tbody className="bg-white divide-y divide-gray-200">
-                                                            {users.map((user) => (
-                                                                  <tr key={user.id} className="hover:bg-gray-50 transition-colors duration-150">
+                                                            {users_data.map((user) => (
+                                                                  <tr key={user._id} className="hover:bg-gray-50 transition-colors duration-150">
                                                                         <td className="px-6 py-4 whitespace-nowrap">
                                                                               <div className="text-sm font-medium text-gray-900">{user.name}</div>
                                                                         </td>
@@ -145,8 +180,8 @@ function All_user() {
                                                                         <td className="px-6 py-4 whitespace-nowrap">
                                                                               <span
                                                                                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'active'
-                                                                                                ? 'bg-green-100 text-green-800'
-                                                                                                : 'bg-red-100 text-red-800'
+                                                                                          ? 'bg-green-100 text-green-800'
+                                                                                          : 'bg-red-100 text-red-800'
                                                                                           }`}
                                                                               >
                                                                                     {user.status}
@@ -154,10 +189,10 @@ function All_user() {
                                                                         </td>
                                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                                               <div className="flex space-x-2">
-                                                                                    <button className="text-indigo-600 hover:text-indigo-900">
+                                                                                    <button className="cursor-pointer text-indigo-600 hover:text-indigo-900">
                                                                                           <Edit size={18} />
                                                                                     </button>
-                                                                                    <button className="text-red-600 hover:text-red-900">
+                                                                                    <button onClick={() => handle_delete(user._id)} className="cursor-pointer text-red-600 hover:text-red-900">
                                                                                           <Trash2 size={18} />
                                                                                     </button>
                                                                               </div>
@@ -171,14 +206,14 @@ function All_user() {
                                           <div className="flex justify-between items-center pt-4">
                                                 <button
                                                       onClick={() => setActiveTab('new')}
-                                                      className="flex items-center px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors duration-200"
+                                                      className="cursor-pointer flex items-center px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors duration-200"
                                                 >
                                                       <UserPlus size={18} className="mr-2" />
                                                       Add New User
                                                 </button>
                                                 <div className="flex space-x-2">
-                                                      <button className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50">Previous</button>
-                                                      <button className="px-3 py-1 bg-emerald-500 text-white rounded-md hover:bg-emerald-600">Next</button>
+                                                      <button className="cursor-pointer px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50">Previous</button>
+                                                      <button className="cursor-pointer px-3 py-1 bg-emerald-500 text-white rounded-md hover:bg-emerald-600">Next</button>
                                                 </div>
                                           </div>
                                     </div>
