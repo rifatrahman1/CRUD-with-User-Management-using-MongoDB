@@ -35,7 +35,7 @@ function All_user() {
                   confirmButtonText: "Yes, delete it!"
             }).then((result) => {
                   if (result.isConfirmed) {
-                        fetch(`http://localhost:5000/users/${id}`, {  // ✅ এখানে `/` যোগ করা হয়েছে
+                        fetch(`http://localhost:5000/users/${id}`, { 
                               method: 'DELETE'
                         })
                               .then(res => res.json())
@@ -48,7 +48,6 @@ function All_user() {
                                                 icon: "success"
                                           });
 
-                                          // ✅ `users_data` আসলে একটা অ্যারে কি না চেক করা হচ্ছে
                                           if (Array.isArray(users_data)) {
                                                 const remaining = users_data.filter((user) => user._id !== id);
                                                 console.log('remaining', remaining);
@@ -72,7 +71,7 @@ function All_user() {
             const status = form.status.value;
             const users = { name, email, gender, status };
 
-            console.log(users); // ডাটা ঠিকঠাক যাচ্ছে কিনা চেক করো
+            console.log(users); 
 
             fetch("http://localhost:5000/users", {
                   method: "POST",
@@ -83,7 +82,7 @@ function All_user() {
             })
                   .then((res) => res.json())
                   .then((data) => {
-                        console.log("Server Response:", data); // সার্ভার কী রেসপন্স দিচ্ছে চেক করো
+                        console.log("Server Response:", data);
 
                         if (data.insertedId) {
                               Swal.fire({
