@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Users, ArrowLeft, UserPlus, Save, Search, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
-import { data } from 'react-router-dom';
+import { data, useLoaderData } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 function All_user() {
+      const users_data = useLoaderData();
       const [activeTab, setActiveTab] = useState('new');
       const [formData, setFormData] = useState({
             // name: '',
@@ -74,7 +75,7 @@ function All_user() {
                         <div className="bg-emerald-500 text-white p-5">
                               <div className="flex items-center justify-center">
                                     <Users className="mr-2" size={24} />
-                                    <h1 className="text-2xl font-bold text-center">User Management System</h1>
+                                    <h1 className="text-2xl font-bold text-center">User Management System:{users_data.length}</h1>
                               </div>
                         </div>
 
