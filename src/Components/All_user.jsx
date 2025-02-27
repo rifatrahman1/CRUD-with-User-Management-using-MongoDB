@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Users, ArrowLeft, UserPlus, Save, Search, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { data } from 'react-router-dom';
 
 function All_user() {
       const [activeTab, setActiveTab] = useState('new');
@@ -33,9 +34,24 @@ function All_user() {
                const email = form.email.value;
                const gender = form.gender.value;
                const status = form.status.value;
-               console.log(name, email, gender, status);
+               const users = {name, email, gender, status}
+               console.log(users);
             // console.log("Form Data:", formData);
-            setActiveTab('all');
+
+            fetch('http://localhost:5000/users', {
+                  method: 'POST',
+                  headers: {
+                        'content-type': 'application/json'
+                  },
+                  body: JSON.stringify(users)
+            })
+            .then(res => res.json())
+            .then((data) => {
+                  console.log(data);
+            })
+
+            form.reset();
+            // setActiveTab('all');
       };
 
       return (
@@ -278,7 +294,7 @@ function All_user() {
 
                                                 <button
                                                       type="submit"
-                                                      className="w-full flex items-center justify-center px-4 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors duration-200"
+                                                      className="w-full cursor-pointer flex items-center justify-center px-4 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors duration-200"
                                                 >
                                                       <Save size={18} className="mr-2" />
                                                       Save
