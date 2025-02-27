@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Users, ArrowLeft, UserPlus, Save, Search, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { data } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 function All_user() {
       const [activeTab, setActiveTab] = useState('new');
@@ -30,29 +31,41 @@ function All_user() {
       const handleSubmit = (event) => {
             event.preventDefault();
             const form = event.target;
-               const name = form.name.value;
-               const email = form.email.value;
-               const gender = form.gender.value;
-               const status = form.status.value;
-               const users = {name, email, gender, status}
-               console.log(users);
-            // console.log("Form Data:", formData);
-
-            fetch('http://localhost:5000/users', {
-                  method: 'POST',
-                  headers: {
-                        'content-type': 'application/json'
-                  },
-                  body: JSON.stringify(users)
+            const name = form.name.value;
+            const email = form.email.value;
+            const gender = form.gender.value;
+            const status = form.status.value;
+            const users = { name, email, gender, status };
+        
+            console.log(users); // ডাটা ঠিকঠাক যাচ্ছে কিনা চেক করো
+        
+            fetch("http://localhost:5000/users", {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify(users),
             })
-            .then(res => res.json())
-            .then((data) => {
-                  console.log(data);
-            })
-
-            form.reset();
-            // setActiveTab('all');
-      };
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log("Server Response:", data); // সার্ভার কী রেসপন্স দিচ্ছে চেক করো
+        
+                    if (data.insertedId) {
+                        Swal.fire({
+                              title: "Good job!",
+                              text: "User added successfully!",
+                              icon: "success",
+                          }).then(() => {
+                              form.reset();
+                              form.elements["name"].value = "";
+                              form.elements["email"].value = "";
+                          });                                                   
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                });
+        };        
 
       return (
             <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 p-6">
